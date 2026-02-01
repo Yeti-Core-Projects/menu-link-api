@@ -141,6 +141,3 @@ All errors are returned in a consistent JSON format:
 - `order_created` - New order notification
 - `order_status_updated` - Order status change notification
 
-## License
-
-ISC
