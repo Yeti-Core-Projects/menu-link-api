@@ -3,10 +3,8 @@
   "info": {
     "title": "Menu Link API",
     "description": "API backend pour l'application de gestion de restaurant avec menu digital accessible via QR code.\n\n## Fonctionnalités\n- Scan de QR code pour accéder au menu\n- Menu digital avec catégories et plats\n- Gestion des sessions clients\n\n## Authentification\nActuellement, l'API ne nécessite pas d'authentification pour les endpoints publics (menu, sessions).",
-    "version": "1.0.0",
-    "license": {
-      "name": "ISC"
-    }
+    "version": "1.0.0"
+
   },
   "servers": [
     {
