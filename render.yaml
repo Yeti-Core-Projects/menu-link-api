@@ -14,18 +14,10 @@ services:
       - key: PORT
         value: 3000
       - key: MONGODB_URI
-        fromDatabase:
-          name: menu-link-db
-          property: connectionString
+        value: mongodb+srv://arnauld:arnauld@cluster0.3m0gptw.mongodb.net/menu-link?retryWrites=true&w=majority
       - key: SESSION_SECRET
         generateValue: true
       - key: CORS_ORIGIN
         value: "*"
       - key: LOG_LEVEL
         value: info
-
-databases:
-  # MongoDB Database
-  - name: menu-link-db
-    databaseName: restaurant-management
-    plan: free
