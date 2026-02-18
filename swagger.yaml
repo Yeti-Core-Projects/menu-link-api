@@ -13,9 +13,6 @@ info:
     Actuellement, l'API ne nécessite pas d'authentification pour les endpoints publics (menu, sessions).
     
   version: 1.0.0
-  contact:
-    name: Yeti Core Projects
-    url: https://github.com/Yeti-Core-Projects/menu-link-api
   license:
     name: ISC
 
