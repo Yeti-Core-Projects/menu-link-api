@@ -7,6 +7,7 @@ const requestLogger = require('./middleware/requestLogger');
 const healthRoutes = require('./routes/health');
 const sessionRoutes = require('./routes/sessions');
 const menuRoutes = require('./routes/menu');
+const seedRoutes = require('./routes/seed');
 const logger = require('./utils/logger');
 
 const app = express();
@@ -32,6 +33,7 @@ const tableRoutes = require('./routes/tables');
 
 // Routes
 app.use('/api', healthRoutes);
+app.use('/api/seed', seedRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/menus', menuRoutes);

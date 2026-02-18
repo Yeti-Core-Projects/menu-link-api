@@ -42,15 +42,25 @@ http://localhost:3000/api-docs
 
 ## 🗄️ Peupler la Base de Données
 
-### Méthode Simple (Recommandée)
+### Méthode Simple (Sans Shell - Plan Gratuit Render)
 
-1. Aller sur: https://dashboard.render.com
-2. Ouvrir votre service "menu-link-api"
-3. Cliquer sur "Shell"
-4. Exécuter:
-   ```bash
-   node src/seeds/seedData.js
-   ```
+1. Ouvrir: https://menu-link-api.onrender.com/api-docs
+2. Chercher la section **"Seed"**
+3. Cliquer sur **"POST /api/seed"**
+4. Cliquer sur **"Try it out"**
+5. Cliquer sur **"Execute"**
+
+✅ Pas besoin d'accès Shell!
+
+### Alternative: Via cURL
+```bash
+curl -X POST https://menu-link-api.onrender.com/api/seed
+```
+
+### Vérifier l'état de la BD
+```bash
+curl https://menu-link-api.onrender.com/api/seed/status
+```
 
 ### Données Créées
 - ✅ 5 tables avec QR codes
@@ -59,7 +69,7 @@ http://localhost:3000/api-docs
 - ✅ 10 plats
 - ✅ 1 utilisateur gestionnaire
 
-Voir `PEUPLER_BD_PRODUCTION.md` pour plus de détails.
+Voir `SEED_SANS_SHELL.md` pour plus de détails.
 
 ---
 
@@ -90,6 +100,8 @@ Importer: `postman_collection.json`
 | Méthode | Endpoint | Description |
 |---------|----------|-------------|
 | GET | `/api/health` | Vérifier le statut |
+| GET | `/api/seed/status` | Vérifier l'état de la BD |
+| POST | `/api/seed` | Peupler la BD (setup initial) |
 | POST | `/api/sessions` | Créer session (scan QR) |
 | GET | `/api/sessions/:id` | Valider session |
 | GET | `/api/menu` | Récupérer menu complet |
@@ -151,8 +163,12 @@ npm run dev
 
 ### La BD est vide en production
 ```bash
-# Via Render Shell
-node src/seeds/seedData.js
+# Via Swagger UI
+# 1. Ouvrir: https://menu-link-api.onrender.com/api-docs
+# 2. POST /api/seed → Try it out → Execute
+
+# Ou via cURL
+curl -X POST https://menu-link-api.onrender.com/api/seed
 ```
 
 ### Le serveur ne démarre pas
