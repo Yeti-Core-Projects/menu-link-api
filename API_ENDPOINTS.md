@@ -1,18 +1,24 @@
-# API Endpoints Documentation
+# 📡 API Endpoints - Menu Link
 
-## Base URL
-```
-http://localhost:3000/api
-```
+## 🌐 Base URLs
 
-## Health Check
+- **Production**: `https://menu-link-api.onrender.com/api`
+- **Local**: `http://localhost:3000/api`
 
-### Check Server Status
-```
-GET /health
-```
+## 📚 Documentation Interactive
 
-**Response (200):**
+**Swagger UI**: https://menu-link-api.onrender.com/api-docs
+
+---
+
+## Endpoints Disponibles
+
+### 🏥 Health Check
+
+#### GET /health
+Vérifie si le serveur est en ligne.
+
+**Réponse 200:**
 ```json
 {
   "success": true,
@@ -23,21 +29,19 @@ GET /health
 
 ---
 
-## Sessions
+### 🎫 Sessions (QR Code)
 
-### Create Session from QR Code
-Scan a QR code to create a client session and access the menu.
+#### POST /sessions
+Crée une session client après le scan d'un QR code.
 
-```
-POST /sessions
-Content-Type: application/json
-
+**Body:**
+```json
 {
   "qr_code": "table_1_1706256600000"
 }
 ```
 
-**Response (201):**
+**Réponse 201:**
 ```json
 {
   "success": true,
@@ -50,38 +54,16 @@ Content-Type: application/json
 }
 ```
 
-**Error (400):**
-```json
-{
-  "success": false,
-  "error": {
-    "code": "MISSING_QR_CODE",
-    "message": "QR code is required"
-  }
-}
-```
-
-**Error (404):**
-```json
-{
-  "success": false,
-  "error": {
-    "code": "NOT_FOUND",
-    "message": "Invalid QR code or table is inactive"
-  }
-}
-```
+**Erreurs:**
+- `400` - QR code manquant
+- `404` - QR code invalide ou table inactive
 
 ---
 
-### Validate Session
-Check if a session is still valid.
+#### GET /sessions/:session_id
+Valide une session existante.
 
-```
-GET /sessions/:session_id
-```
-
-**Response (200):**
+**Réponse 200:**
 ```json
 {
   "success": true,
@@ -95,27 +77,15 @@ GET /sessions/:session_id
 }
 ```
 
-**Error (401):**
-```json
-{
-  "success": false,
-  "error": {
-    "code": "INVALID_SESSION",
-    "message": "Invalid or expired session"
-  }
-}
-```
+**Erreurs:**
+- `401` - Session invalide ou expirée
 
 ---
 
-### End Session
-Close a client session.
+#### DELETE /sessions/:session_id
+Termine une session client.
 
-```
-DELETE /sessions/:session_id
-```
-
-**Response (200):**
+**Réponse 200:**
 ```json
 {
   "success": true,
@@ -123,18 +93,17 @@ DELETE /sessions/:session_id
 }
 ```
 
+**Erreurs:**
+- `404` - Session non trouvée
+
 ---
 
-## Menu
+### 🍽️ Menu
 
-### Get Complete Menu
-Get all categories and dishes. Returns empty arrays if no data exists.
+#### GET /menu
+Récupère le menu complet avec toutes les catégories et plats.
 
-```
-GET /menu
-```
-
-**Response (200) - With Data:**
+**Réponse 200 (avec données):**
 ```json
 {
   "success": true,
@@ -162,7 +131,7 @@ GET /menu
 }
 ```
 
-**Response (200) - Empty Menu:**
+**Réponse 200 (vide):**
 ```json
 {
   "success": true,
@@ -176,47 +145,18 @@ GET /menu
 
 ---
 
-### Get Menu by ID
-Get a specific menu.
+#### POST /menus
+Crée un nouveau menu.
 
-```
-GET /menus/:id
-```
-
-**Response (200):**
+**Body:**
 ```json
-{
-  "success": true,
-  "data": {
-    "_id": "507f1f77bcf86cd799439011",
-    "nom": "Menu Principal",
-    "actif": true,
-    "gestionnaire_id": {
-      "_id": "507f1f77bcf86cd799439010",
-      "name": "Admin Gestionnaire",
-      "email": "gestionnaire@restaurant.com",
-      "role": "GESTIONNAIRE"
-    }
-  }
-}
-```
-
----
-
-### Create Menu
-Create a new menu (requires gestionnaire_id).
-
-```
-POST /menus
-Content-Type: application/json
-
 {
   "nom": "Menu du Jour",
   "gestionnaire_id": "507f1f77bcf86cd799439010"
 }
 ```
 
-**Response (201):**
+**Réponse 201:**
 ```json
 {
   "success": true,
@@ -224,28 +164,54 @@ Content-Type: application/json
     "_id": "507f1f77bcf86cd799439011",
     "nom": "Menu du Jour",
     "actif": true,
-    "gestionnaire_id": "507f1f77bcf86cd799439010"
+    "gestionnaire_id": "507f1f77bcf86cd799439010",
+    "createdAt": "2024-01-26T10:30:00.000Z",
+    "updatedAt": "2024-01-26T10:30:00.000Z"
   },
   "message": "Menu created successfully"
 }
 ```
 
+**Erreurs:**
+- `400` - Champs requis manquants
+
 ---
 
-### Update Menu
-Update an existing menu.
+#### GET /menus/:id
+Récupère un menu spécifique.
 
+**Réponse 200:**
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "507f1f77bcf86cd799439011",
+    "nom": "Menu Principal",
+    "actif": true,
+    "gestionnaire_id": "507f1f77bcf86cd799439010",
+    "createdAt": "2024-01-26T10:30:00.000Z",
+    "updatedAt": "2024-01-26T10:30:00.000Z"
+  }
+}
 ```
-PUT /menus/:id
-Content-Type: application/json
 
+**Erreurs:**
+- `404` - Menu non trouvé
+
+---
+
+#### PUT /menus/:id
+Met à jour un menu existant.
+
+**Body:**
+```json
 {
   "nom": "Menu Spécial",
   "actif": false
 }
 ```
 
-**Response (200):**
+**Réponse 200:**
 ```json
 {
   "success": true,
@@ -253,7 +219,9 @@ Content-Type: application/json
     "_id": "507f1f77bcf86cd799439011",
     "nom": "Menu Spécial",
     "actif": false,
-    "gestionnaire_id": "507f1f77bcf86cd799439010"
+    "gestionnaire_id": "507f1f77bcf86cd799439010",
+    "createdAt": "2024-01-26T10:30:00.000Z",
+    "updatedAt": "2024-01-26T10:35:00.000Z"
   },
   "message": "Menu updated successfully"
 }
@@ -261,14 +229,10 @@ Content-Type: application/json
 
 ---
 
-### Delete Menu
-Delete a menu.
+#### DELETE /menus/:id
+Supprime un menu.
 
-```
-DELETE /menus/:id
-```
-
-**Response (200):**
+**Réponse 200:**
 ```json
 {
   "success": true,
@@ -278,74 +242,72 @@ DELETE /menus/:id
 
 ---
 
-## Testing the API
+## 🔧 Format des Erreurs
 
-### 1. Seed the Database
-```bash
-node src/seeds/seedData.js
-```
+Toutes les erreurs suivent ce format:
 
-This will create:
-- 5 tables with QR codes
-- 1 menu with 4 categories
-- 10 dishes
-
-### 2. Get the Menu
-```bash
-curl http://localhost:3000/api/menu
-```
-
-### 3. Create a Session
-```bash
-curl -X POST http://localhost:3000/api/sessions \
-  -H "Content-Type: application/json" \
-  -d '{"qr_code": "table_1_1706256600000"}'
-```
-
-Replace `table_1_1706256600000` with an actual QR code from the seed output.
-
-### 4. Validate the Session
-```bash
-curl http://localhost:3000/api/sessions/550e8400-e29b-41d4-a716-446655440000
-```
-
-Replace the session_id with the one from step 3.
-
----
-
-## Error Codes
-
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| MISSING_QR_CODE | 400 | QR code is required |
-| MISSING_FIELDS | 400 | Required fields are missing |
-| INVALID_SESSION | 401 | Session is invalid or expired |
-| NOT_FOUND | 404 | Resource not found |
-| INTERNAL_SERVER_ERROR | 500 | Server error |
-
----
-
-## Response Format
-
-All responses follow this format:
-
-**Success:**
-```json
-{
-  "success": true,
-  "data": {},
-  "message": "Optional message"
-}
-```
-
-**Error:**
 ```json
 {
   "success": false,
   "error": {
     "code": "ERROR_CODE",
-    "message": "Error description",
+    "message": "Description de l'erreur",
     "details": {}
   }
 }
 ```
+
+### Codes d'Erreur Communs
+
+| Code | Description |
+|------|-------------|
+| `MISSING_QR_CODE` | QR code manquant dans la requête |
+| `INVALID_SESSION` | Session invalide ou expirée |
+| `NOT_FOUND` | Ressource non trouvée |
+| `VALIDATION_ERROR` | Erreur de validation des données |
+| `DATABASE_ERROR` | Erreur de base de données |
+
+---
+
+## 🧪 Tester l'API
+
+### Avec cURL
+
+```bash
+# Health check
+curl https://menu-link-api.onrender.com/api/health
+
+# Récupérer le menu
+curl https://menu-link-api.onrender.com/api/menu
+
+# Créer une session
+curl -X POST https://menu-link-api.onrender.com/api/sessions \
+  -H "Content-Type: application/json" \
+  -d '{"qr_code": "table_1_1706256600000"}'
+```
+
+### Avec Postman
+
+Importer la collection: `postman_collection.json`
+
+### Avec Swagger UI
+
+Accéder à: https://menu-link-api.onrender.com/api-docs
+
+---
+
+## 📝 Notes
+
+- Tous les endpoints retournent du JSON
+- Les timestamps sont au format ISO 8601
+- Les IDs MongoDB sont des ObjectId (24 caractères hexadécimaux)
+- Les UUIDs de session sont au format UUID v4
+
+---
+
+## 🔗 Liens Utiles
+
+- **Swagger UI**: https://menu-link-api.onrender.com/api-docs
+- **GitHub**: https://github.com/Yeti-Core-Projects/menu-link-api
+- **Guide Frontend**: `FRONTEND_INTEGRATION.md`
+- **Guide Français**: `POUR_LE_DEV_FRONTEND.md`

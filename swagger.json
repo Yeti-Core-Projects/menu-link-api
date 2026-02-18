@@ -1,0 +1,240 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Menu Link API",
+    "description": "API backend pour l'application de gestion de restaurant avec menu digital accessible via QR code.\n\n## Fonctionnalités\n- Scan de QR code pour accéder au menu\n- Menu digital avec catégories et plats\n- Gestion des sessions clients\n\n## Authentification\nActuellement, l'API ne nécessite pas d'authentification pour les endpoints publics (menu, sessions).",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Yeti Core Projects",
+      "url": "https://github.com/Yeti-Core-Projects/menu-link-api"
+    },
+    "license": {
+      "name": "ISC"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://menu-link-api.onrender.com/api",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Health check endpoints"
+    },
+    {
+      "name": "Sessions",
+      "description": "Client session management via QR code"
+    },
+    {
+      "name": "Menu",
+      "description": "Menu and dishes management"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Check server status",
+        "description": "Vérifie si le serveur est en ligne et fonctionnel",
+        "operationId": "getHealth",
+        "responses": {
+          "200": {
+            "description": "Server is running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Server is running"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-01-26T10:30:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions": {
+      "post": {
+        "tags": ["Sessions"],
+        "summary": "Create session from QR code",
+        "description": "Crée une nouvelle session client après le scan d'un QR code. Le QR code contient l'identifiant de la table.",
+        "operationId": "createSession",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["qr_code"],
+                "properties": {
+                  "qr_code": {
+                    "type": "string",
+                    "description": "Code QR scanné contenant l'identifiant de la table",
+                    "example": "table_1_1706256600000"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Session créée avec succès",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "session_id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "example": "550e8400-e29b-41d4-a716-446655440000"
+                        },
+                        "table_id": {
+                          "type": "string",
+                          "example": "507f1f77bcf86cd799439011"
+                        },
+                        "started_at": {
+                          "type": "string",
+                          "format": "date-time",
+                          "example": "2024-01-26T10:30:00.000Z"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Session created successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "QR code manquant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}": {
+      "get": {
+        "tags": ["Sessions"],
+        "summary": "Validate session",
+        "description": "Vérifie si une session est toujours valide",
+        "operationId": "validateSession",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "description": "ID de la session à valider",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session valide"
+          },
+          "401": {
+            "description": "Session invalide ou expirée"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Sessions"],
+        "summary": "End session",
+        "description": "Termine une session client",
+        "operationId": "endSession",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session terminée"
+          }
+        }
+      }
+    },
+    "/menu": {
+      "get": {
+        "tags": ["Menu"],
+        "summary": "Get complete menu",
+        "description": "Récupère le menu complet avec toutes les catégories et plats disponibles",
+        "operationId": "getCompleteMenu",
+        "responses": {
+          "200": {
+            "description": "Menu récupéré avec succès"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

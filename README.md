@@ -2,6 +2,18 @@
 
 Backend API for the restaurant management application built with Express.js and MongoDB.
 
+## 📚 Documentation API
+
+**Documentation interactive Swagger UI disponible en ligne:**
+- 🌐 Production: https://menu-link-api.onrender.com/api-docs
+- 🏠 Local: http://localhost:3000/api-docs
+
+Pour plus de détails, consultez:
+- `QUICK_START.md` - Guide de démarrage rapide
+- `API_DOCUMENTATION.md` - Documentation complète de l'API
+- `FRONTEND_INTEGRATION.md` - Guide d'intégration frontend
+- `POUR_LE_DEV_FRONTEND.md` - Guide pour les développeurs frontend
+
 ## Features
 
 - QR code-based table authentication

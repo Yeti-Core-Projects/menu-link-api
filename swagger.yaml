@@ -1,0 +1,528 @@
+openapi: 3.0.3
+info:
+  title: Menu Link API
+  description: |
+    API backend pour l'application de gestion de restaurant avec menu digital accessible via QR code.
+    
+    ## Fonctionnalités
+    - Scan de QR code pour accéder au menu
+    - Menu digital avec catégories et plats
+    - Gestion des sessions clients
+    
+    ## Authentification
+    Actuellement, l'API ne nécessite pas d'authentification pour les endpoints publics (menu, sessions).
+    
+  version: 1.0.0
+  contact:
+    name: Yeti Core Projects
+    url: https://github.com/Yeti-Core-Projects/menu-link-api
+  license:
+    name: ISC
+
+servers:
+  - url: https://menu-link-api.onrender.com/api
+    description: Production server
+  - url: http://localhost:3000/api
+    description: Development server
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Sessions
+    description: Client session management via QR code
+  - name: Menu
+    description: Menu and dishes management
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Check server status
+      description: Vérifie si le serveur est en ligne et fonctionnel
+      operationId: getHealth
+      responses:
+        '200':
+          description: Server is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Server is running"
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2024-01-26T10:30:00.000Z"
+
+  /sessions:
+    post:
+      tags:
+        - Sessions
+      summary: Create session from QR code
+      description: |
+        Crée une nouvelle session client après le scan d'un QR code.
+        Le QR code contient l'identifiant de la table.
+      operationId: createSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - qr_code
+              properties:
+                qr_code:
+                  type: string
+                  description: Code QR scanné contenant l'identifiant de la table
+                  example: "table_1_1706256600000"
+      responses:
+        '201':
+          description: Session créée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      session_id:
+                        type: string
+                        format: uuid
+                        example: "550e8400-e29b-41d4-a716-446655440000"
+                      table_id:
+                        type: string
+                        example: "507f1f77bcf86cd799439011"
+                      started_at:
+                        type: string
+                        format: date-time
+                        example: "2024-01-26T10:30:00.000Z"
+                  message:
+                    type: string
+                    example: "Session created successfully"
+        '400':
+          description: QR code manquant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: "MISSING_QR_CODE"
+                  message: "QR code is required"
+        '404':
+          description: QR code invalide ou table inactive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: "NOT_FOUND"
+                  message: "Invalid QR code or table is inactive"
+
+  /sessions/{session_id}:
+    get:
+      tags:
+        - Sessions
+      summary: Validate session
+      description: Vérifie si une session est toujours valide
+      operationId: validateSession
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          description: ID de la session à valider
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Session valide
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      session_id:
+                        type: string
+                        format: uuid
+                        example: "550e8400-e29b-41d4-a716-446655440000"
+                      table_id:
+                        type: string
+                        example: "507f1f77bcf86cd799439011"
+                      table_number:
+                        type: integer
+                        example: 1
+                      started_at:
+                        type: string
+                        format: date-time
+                        example: "2024-01-26T10:30:00.000Z"
+                  message:
+                    type: string
+                    example: "Session is valid"
+        '401':
+          description: Session invalide ou expirée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                success: false
+                error:
+                  code: "INVALID_SESSION"
+                  message: "Invalid or expired session"
+    
+    delete:
+      tags:
+        - Sessions
+      summary: End session
+      description: Termine une session client
+      operationId: endSession
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          description: ID de la session à terminer
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Session terminée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Session ended successfully"
+        '404':
+          description: Session non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /menu:
+    get:
+      tags:
+        - Menu
+      summary: Get complete menu
+      description: |
+        Récupère le menu complet avec toutes les catégories et plats disponibles.
+        Retourne un tableau vide si aucun menu n'existe.
+      operationId: getCompleteMenu
+      responses:
+        '200':
+          description: Menu récupéré avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      categories:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CategoryWithDishes'
+                      totalDishes:
+                        type: integer
+                        example: 10
+                  message:
+                    type: string
+                    example: "Menu retrieved successfully"
+              examples:
+                withData:
+                  summary: Menu avec données
+                  value:
+                    success: true
+                    data:
+                      categories:
+                        - _id: "507f1f77bcf86cd799439011"
+                          nom: "Entrées"
+                          ordre_affichage: 0
+                          dishes:
+                            - _id: "507f1f77bcf86cd799439012"
+                              nom: "Salade César"
+                              description: "Salade fraîche avec croutons"
+                              prix: 8.99
+                              disponible: true
+                              image_url: null
+                      totalDishes: 10
+                    message: "Menu retrieved successfully"
+                empty:
+                  summary: Menu vide
+                  value:
+                    success: true
+                    data:
+                      categories: []
+                      totalDishes: 0
+                    message: "Menu retrieved successfully"
+
+  /menus/{id}:
+    get:
+      tags:
+        - Menu
+      summary: Get menu by ID
+      description: Récupère un menu spécifique par son ID
+      operationId: getMenuById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du menu
+          schema:
+            type: string
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        '200':
+          description: Menu trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Menu'
+        '404':
+          description: Menu non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      tags:
+        - Menu
+      summary: Update menu
+      description: Met à jour un menu existant
+      operationId: updateMenu
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du menu
+          schema:
+            type: string
+            example: "507f1f77bcf86cd799439011"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nom:
+                  type: string
+                  example: "Menu Spécial"
+                actif:
+                  type: boolean
+                  example: false
+      responses:
+        '200':
+          description: Menu mis à jour
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Menu'
+                  message:
+                    type: string
+                    example: "Menu updated successfully"
+    
+    delete:
+      tags:
+        - Menu
+      summary: Delete menu
+      description: Supprime un menu
+      operationId: deleteMenu
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du menu
+          schema:
+            type: string
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        '200':
+          description: Menu supprimé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Menu deleted successfully"
+
+  /menus:
+    post:
+      tags:
+        - Menu
+      summary: Create menu
+      description: Crée un nouveau menu
+      operationId: createMenu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nom
+                - gestionnaire_id
+              properties:
+                nom:
+                  type: string
+                  example: "Menu du Jour"
+                gestionnaire_id:
+                  type: string
+                  example: "507f1f77bcf86cd799439010"
+      responses:
+        '201':
+          description: Menu créé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Menu'
+                  message:
+                    type: string
+                    example: "Menu created successfully"
+        '400':
+          description: Champs manquants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "ERROR_CODE"
+            message:
+              type: string
+              example: "Error description"
+            details:
+              type: object
+              additionalProperties: true
+    
+    Menu:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        nom:
+          type: string
+          example: "Menu Principal"
+        actif:
+          type: boolean
+          example: true
+        gestionnaire_id:
+          type: string
+          example: "507f1f77bcf86cd799439010"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    
+    CategoryWithDishes:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        nom:
+          type: string
+          example: "Entrées"
+        ordre_affichage:
+          type: integer
+          example: 0
+        dishes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dish'
+    
+    Dish:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "507f1f77bcf86cd799439012"
+        nom:
+          type: string
+          example: "Salade César"
+        description:
+          type: string
+          example: "Salade fraîche avec croutons"
+        prix:
+          type: number
+          format: float
+          example: 8.99
+        disponible:
+          type: boolean
+          example: true
+        image_url:
+          type: string
+          nullable: true
+          example: "https://example.com/images/salade-cesar.jpg"

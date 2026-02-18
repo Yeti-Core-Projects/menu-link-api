@@ -34,7 +34,8 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^9.0.0",
-    "ws": "^8.14.2"
+    "ws": "^8.14.2",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "fast-check": "^3.13.0",
