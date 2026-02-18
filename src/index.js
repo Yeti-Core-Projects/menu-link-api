@@ -33,7 +33,7 @@ const tableRoutes = require('./routes/tables');
 
 // Routes
 app.use('/api', healthRoutes);
-app.use('/api/seed', seedRoutes);
+// app.use('/api/seed', seedRoutes); // Endpoint désactivé - ne pas exposer publiquement
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/menus', menuRoutes);
