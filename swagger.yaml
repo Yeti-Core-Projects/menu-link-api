@@ -13,8 +13,7 @@ info:
     Actuellement, l'API ne nécessite pas d'authentification pour les endpoints publics (menu, sessions).
     
   version: 1.0.0
-  license:
-    name: ISC
+
 
 servers:
   - url: https://menu-link-api.onrender.com/api
