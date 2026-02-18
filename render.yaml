@@ -1,0 +1,31 @@
+services:
+  # Web Service (API)
+  - type: web
+    name: menu-link-api
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: MONGODB_URI
+        fromDatabase:
+          name: menu-link-db
+          property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: LOG_LEVEL
+        value: info
+
+databases:
+  # MongoDB Database
+  - name: menu-link-db
+    databaseName: restaurant-management
+    plan: free

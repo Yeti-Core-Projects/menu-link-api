@@ -1,18 +1,47 @@
+# Dependencies
 node_modules/
+
+# Environment files
 .env
 .env.local
 .env.production
 .env.*.local
-dist/
-build/
+
+# Logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# OS files
 .DS_Store
-uploads/
-logs/
-coverage/
-.jest_cache/
+Thumbs.db
+
+# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+
+# Build outputs
+dist/
+build/
+
+# Uploads
+uploads/
+
+# Coverage
+coverage/
+.jest_cache/
+
+# Generated QR codes
+qr_codes/
+
+# Git repository
+.git/
+
+# Docker files (not needed for Render deployment)
+Dockerfile
+.dockerignore

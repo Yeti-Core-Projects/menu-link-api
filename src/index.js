@@ -5,6 +5,8 @@ const corsMiddleware = require('./middleware/cors');
 const errorHandler = require('./middleware/errorHandler');
 const requestLogger = require('./middleware/requestLogger');
 const healthRoutes = require('./routes/health');
+const sessionRoutes = require('./routes/sessions');
+const menuRoutes = require('./routes/menu');
 const logger = require('./utils/logger');
 
 const app = express();
@@ -16,8 +18,27 @@ app.use(express.json());
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(requestLogger);
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
+
+// Swagger Documentation Route
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+const orderRoutes = require('./routes/orders');
+
+const dishRoutes = require('./routes/dishes');
+const categoryRoutes = require('./routes/categories');
+const tableRoutes = require('./routes/tables');
+
 // Routes
 app.use('/api', healthRoutes);
+app.use('/api/sessions', sessionRoutes);
+app.use('/api/menu', menuRoutes);
+app.use('/api/menus', menuRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/dishes', dishRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/tables', tableRoutes);
 
 // 404 handler
 app.use((req, res) => {
