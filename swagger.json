@@ -8,8 +8,12 @@
   },
   "servers": [
     {
+      "url": "https://menulink.manegroupsarl.com/api",
+      "description": "Production server (cPanel)"
+    },
+    {
       "url": "https://menu-link-api.onrender.com/api",
-      "description": "Production server"
+      "description": "Production server (Render - backup)"
     },
     {
       "url": "http://localhost:3000/api",
