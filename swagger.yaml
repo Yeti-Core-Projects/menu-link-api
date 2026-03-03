@@ -30,6 +30,10 @@ tags:
     description: Client session management via QR code
   - name: Menu
     description: Menu and dishes management
+  - name: Categories
+    description: Category management (Admin)
+  - name: Dishes
+    description: Dish management (Admin)
 
 paths:
   /health:
@@ -441,6 +445,424 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: List all categories
+      description: Récupère toutes les catégories, optionnellement filtrées par menu_id
+      operationId: listCategories
+      parameters:
+        - name: menu_id
+          in: query
+          required: false
+          description: Filtrer par ID du menu
+          schema:
+            type: string
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        '200':
+          description: Liste des catégories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+    
+    post:
+      tags:
+        - Categories
+      summary: Create a new category
+      description: Crée une nouvelle catégorie
+      operationId: createCategory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - menu_id
+                - nom
+              properties:
+                menu_id:
+                  type: string
+                  example: "507f1f77bcf86cd799439011"
+                nom:
+                  type: string
+                  example: "Entrées"
+                ordre_affichage:
+                  type: integer
+                  example: 0
+      responses:
+        '201':
+          description: Catégorie créée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Category'
+                  message:
+                    type: string
+                    example: "Category created successfully"
+
+  /categories/{id}:
+    get:
+      tags:
+        - Categories
+      summary: Get category by ID
+      description: Récupère une catégorie spécifique
+      operationId: getCategory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la catégorie
+          schema:
+            type: string
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        '200':
+          description: Catégorie trouvée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Category'
+        '404':
+          description: Catégorie non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      tags:
+        - Categories
+      summary: Update category
+      description: Met à jour une catégorie existante
+      operationId: updateCategory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la catégorie
+          schema:
+            type: string
+            example: "507f1f77bcf86cd799439011"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nom:
+                  type: string
+                  example: "Plats Principaux"
+                ordre_affichage:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Catégorie mise à jour
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Category'
+                  message:
+                    type: string
+                    example: "Category updated successfully"
+    
+    delete:
+      tags:
+        - Categories
+      summary: Delete category
+      description: Supprime une catégorie (doit être vide)
+      operationId: deleteCategory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la catégorie
+          schema:
+            type: string
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        '200':
+          description: Catégorie supprimée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Category deleted successfully"
+        '400':
+          description: Impossible de supprimer (catégorie non vide)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /dishes:
+    get:
+      tags:
+        - Dishes
+      summary: List all dishes
+      description: Récupère tous les plats, optionnellement filtrés par catégorie
+      operationId: getDishes
+      parameters:
+        - name: category_id
+          in: query
+          required: false
+          description: Filtrer par ID de catégorie
+          schema:
+            type: string
+            example: "507f1f77bcf86cd799439011"
+      responses:
+        '200':
+          description: Liste des plats
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Dish'
+    
+    post:
+      tags:
+        - Dishes
+      summary: Create a new dish
+      description: Crée un nouveau plat
+      operationId: createDish
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nom
+                - prix
+                - categorie_id
+              properties:
+                nom:
+                  type: string
+                  example: "Ndolé"
+                description:
+                  type: string
+                  example: "Feuilles de ndolé aux arachides avec viande"
+                prix:
+                  type: number
+                  format: float
+                  example: 3000
+                categorie_id:
+                  type: string
+                  example: "507f1f77bcf86cd799439011"
+                image_url:
+                  type: string
+                  example: "https://example.com/images/ndole.jpg"
+      responses:
+        '201':
+          description: Plat créé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Dish'
+                  message:
+                    type: string
+                    example: "Dish created successfully"
+
+  /dishes/{id}:
+    get:
+      tags:
+        - Dishes
+      summary: Get dish details
+      description: Récupère les détails d'un plat spécifique
+      operationId: getDish
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du plat
+          schema:
+            type: string
+            example: "507f1f77bcf86cd799439012"
+      responses:
+        '200':
+          description: Plat trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Dish'
+        '404':
+          description: Plat non trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      tags:
+        - Dishes
+      summary: Update dish details
+      description: Met à jour les détails d'un plat
+      operationId: updateDish
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du plat
+          schema:
+            type: string
+            example: "507f1f77bcf86cd799439012"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nom:
+                  type: string
+                  example: "Poulet DG"
+                description:
+                  type: string
+                  example: "Poulet Directeur Général avec plantains"
+                prix:
+                  type: number
+                  format: float
+                  example: 4000
+                disponible:
+                  type: boolean
+                  example: true
+                image_url:
+                  type: string
+                  example: "https://example.com/images/poulet-dg.jpg"
+      responses:
+        '200':
+          description: Plat mis à jour
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Dish'
+                  message:
+                    type: string
+                    example: "Dish updated successfully"
+    
+    delete:
+      tags:
+        - Dishes
+      summary: Delete a dish
+      description: Supprime un plat
+      operationId: deleteDish
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du plat
+          schema:
+            type: string
+            example: "507f1f77bcf86cd799439012"
+      responses:
+        '200':
+          description: Plat supprimé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Dish deleted successfully"
+
+  /dishes/{id}/availability:
+    patch:
+      tags:
+        - Dishes
+      summary: Toggle dish availability
+      description: Active/Désactive la disponibilité d'un plat (En stock / Rupture de stock)
+      operationId: toggleAvailability
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID du plat
+          schema:
+            type: string
+            example: "507f1f77bcf86cd799439012"
+      responses:
+        '200':
+          description: Disponibilité modifiée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Dish'
+                  message:
+                    type: string
+                    example: "Availability toggled successfully"
+
 components:
   schemas:
     Error:
@@ -483,6 +905,22 @@ components:
         updatedAt:
           type: string
           format: date-time
+    
+    Category:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "507f1f77bcf86cd799439011"
+        menu_id:
+          type: string
+          example: "507f1f77bcf86cd799439010"
+        nom:
+          type: string
+          example: "Entrées"
+        ordre_affichage:
+          type: integer
+          example: 0
     
     CategoryWithDishes:
       type: object
