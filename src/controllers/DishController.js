@@ -1,4 +1,5 @@
 const DishService = require('../services/DishService');
+const ImageUploadService = require('../services/ImageUploadService');
 const logger = require('../utils/logger');
 
 class DishController {
@@ -148,6 +149,48 @@ class DishController {
             });
         } catch (error) {
             logger.error('Error deleting dish', { error: error.message });
+            next(error);
+        }
+    }
+
+    /**
+     * Upload dish image
+     * POST /api/dishes/:id/image
+     */
+    async uploadImage(req, res, next) {
+        try {
+            const { id } = req.params;
+
+            if (!req.file) {
+                return res.status(400).json({
+                    success: false,
+                    error: {
+                        code: 'NO_FILE',
+                        message: 'No image file provided'
+                    }
+                });
+            }
+
+            // Upload to Cloudinary
+            const imageUrl = await ImageUploadService.uploadImage(req.file.buffer);
+
+            // Update dish with image URL
+            const dish = await DishService.updateDish(id, { image_url: imageUrl });
+
+            res.status(200).json({
+                success: true,
+                message: 'Image uploaded successfully',
+                data: {
+                    _id: dish._id,
+                    nom: dish.nom,
+                    image_url: dish.image_url
+                }
+            });
+        } catch (error) {
+            logger.error('Error uploading image', { error: error.message });
+            if (error.message.includes('not found')) {
+                return res.status(404).json({ success: false, error: 'Dish not found' });
+            }
             next(error);
         }
     }

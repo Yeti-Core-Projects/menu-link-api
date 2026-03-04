@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { upload, handleMulterError } = require('../middleware/multer');
 const DishController = require('../controllers/DishController');
 
 /**
@@ -118,6 +119,34 @@ router.delete('/:id', DishController.deleteDish.bind(DishController));
 
 /**
  * @swagger
+ * /dishes/{id}/image:
+ *   post:
+ *     summary: Upload dish image
+ *     tags: [Dishes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Image uploaded successfully
+ */
+router.post('/:id/image', upload.single('image'), DishController.uploadImage.bind(DishController));
+
+/**
+ * @swagger
  * /dishes/{id}/availability:
  *   patch:
  *     summary: Toggle dish availability (In Stock / Out of Stock)
@@ -133,5 +162,8 @@ router.delete('/:id', DishController.deleteDish.bind(DishController));
  *         description: Availability toggled
  */
 router.patch('/:id/availability', DishController.toggleAvailability.bind(DishController));
+
+// Error handling for multer
+router.use(handleMulterError);
 
 module.exports = router;
